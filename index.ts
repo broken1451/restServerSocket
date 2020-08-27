@@ -8,7 +8,10 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 
 
-const server =  new Server();
+// const server =  new Server();
+
+//patron singleton
+const server =  Server.instance;
 
 // Body-parser
 server.app.use(bodyParser.urlencoded({extended: true}));
