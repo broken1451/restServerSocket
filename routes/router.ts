@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
-import Server from '../classes/server';
+import Server from "../classes/server";
+import { usuariosConectados } from '../sockects/sockets';
 
 // export const router = Router();
 const router = Router();
@@ -23,8 +24,7 @@ router.post("/mensajes", (req: Request, res: Response) => {
 
   const server = Server.instance;
   // server.io.emit('mensaje-todos', payload); // mandar mensajes a todos
-  server.io.emit('mensaje-nuevo', payload); // mandar mensajes a todos
-  
+  server.io.emit("mensaje-nuevo", payload); // mandar mensajes a todos
 
   return res.json({
     ok: true,
@@ -49,7 +49,7 @@ router.post("/mensajes/:id", (req: Request, res: Response) => {
   const server = Server.instance;
 
   // mandar un mensaje a uno o a todos los usuarios
-  server.io.in(id).emit("mensaje-privado", payload);// mandar mensajes a un unico usuario
+  server.io.in(id).emit("mensaje-privado", payload); // mandar mensajes a un unico usuario
   // server.io.emit("mensaje-privado", payload); // mandar mensajes a todos
 
   return res.json({
@@ -61,5 +61,53 @@ router.post("/mensajes/:id", (req: Request, res: Response) => {
     id: id,
   });
 });
+
+// Servicio para obtener todos los IDs  de los usuarios
+router.get("/usuarios", (req: Request, res: Response) => {
+  const server = Server.instance;
+
+  // server.io.clients((err en caso de q suceda, clientes ))
+  server.io.clients((err: any, clientes: string[]) => {
+    if (err) {
+      return res.json({
+        ok: false,
+        error: err,
+      });
+    }
+
+    return res.json({
+      ok: true,
+      clientes: clientes,
+    });
+  });
+});
+
+
+
+router.get("/usuarios/detalle", (req: Request, res: Response) => {
+  const server = Server.instance;
+
+  // server.io.clients((err en caso de q suceda, clientes ))
+  server.io.clients((err: any, clientes: string[]) => {
+    if (err) {
+      return res.json({
+        ok: false,
+        error: err,
+      });
+    }
+
+    return res.json({
+      ok: true,
+      clientes: usuariosConectados.getUsuarios(),
+    });
+  });
+
+  // return res.json({
+  //   ok: true,
+  //   clientes: usuariosConectados.getUsuarios(),
+  // });
+
+});
+   
 
 export default router;

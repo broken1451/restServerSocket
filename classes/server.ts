@@ -73,15 +73,19 @@ export default class Server {
 
       // configurar usuario Login
       socket.login(cliente, this.io)
+
+      // logout 
+      socket.logout(cliente, this.io)
         
       // mensajes
       socket.mensaje(cliente, this.io)
 
-    
+      // obtener usuarios activos
+      socket.obtenerUsuarios(cliente, this.io)
 
 
       // cuando se desconecta
-      socket.disconect(cliente);
+      socket.disconect(cliente, this.io);
       // cliente.on("disconnect", () => {
       //   console.log("Cliente desconectado");
       // });
