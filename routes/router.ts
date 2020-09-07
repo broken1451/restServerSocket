@@ -1,42 +1,81 @@
 import { Router, Request, Response } from "express";
 import Server from "../classes/server";
-import { usuariosConectados } from '../sockects/sockets';
+import { usuariosConectados, mapa } from "../sockects/sockets";
 import { GraficaData } from "../classes/grafica";
+import { GraficaEncuesta } from "../classes/encuesta";
+import { Mapa } from "../classes/mapa";
 
 // export const router = Router();
 const router = Router();
 
-
-const grafica = new GraficaData();
-
-router.get("/grafica", (req: Request, res: Response) => {
-  return res.json({grafica:  grafica.getDataGrafica()});
+// MAPA
+// const mapa = new Mapa();
+router.get("/mapa", (req: Request, res: Response) => {
+  return res.json({ mapa: mapa.getMarcadores() });
   // return res.json({
   //   ok: true,
   //   grafica: grafica.getDataGrafica(),
   // });
 });
+// Mapa
 
+// Graficas
+const grafica = new GraficaData();
+router.get("/grafica", (req: Request, res: Response) => {
+  return res.json({ grafica: grafica.getDataGrafica() });
+  // return res.json({
+  //   ok: true,
+  //   grafica: grafica.getDataGrafica(),
+  // });
+});
 
 router.post("/grafica", (req: Request, res: Response) => {
   const body = req.body;
   const mes = body.mes;
   const unidades = Number(body.unidades);
 
-  // const server = Server.instance;
-  // server.io.emit('mensaje-todos', payload); // mandar mensajes a todos
-  // server.io.emit("mensaje-nuevo", payload); // mandar mensajes a todos
-
   grafica.incrementarValor(mes, unidades);
 
-  return res.json({grafica:  grafica.getDataGrafica()});
+  const server = Server.instance;
+  // server.io.emit('mensaje-todos', payload); // mandar mensajes a todos
+  server.io.emit("cambio-grafica", grafica.getDataGrafica()); // mandar mensajes a todos
+
+  return res.json({ grafica: grafica.getDataGrafica() });
   // return res.json({
   //   ok: true,
   //   grafica: grafica.getDataGrafica(),
   // });
 });
- 
+// Graficas
 
+// encuesta
+const encuesta = new GraficaEncuesta();
+router.get("/encuesta", (req: Request, res: Response) => {
+  return res.json({ encuesta: encuesta.getDataGrafica() });
+  // return res.json({
+  //   ok: true,
+  //   grafica: grafica.getDataGrafica(),
+  // });
+});
+
+router.post("/encuesta", (req: Request, res: Response) => {
+  const body = req.body;
+  const opcion = Number(body.opcion) || 0;
+  const unidades = Number(body.unidades);
+
+  encuesta.incrementarValor(opcion, unidades);
+
+  const server = Server.instance;
+  // server.io.emit('mensaje-todos', payload); // mandar mensajes a todos
+  server.io.emit("cambio-grafica", encuesta.getDataGrafica()); // mandar mensajes a todos
+
+  return res.json({ encuesta: encuesta.getDataGrafica() });
+  // return res.json({
+  //   ok: true,
+  //   grafica: grafica.getDataGrafica(),
+  // });
+});
+// encuesta
 
 router.get("/mensajes", (req: Request, res: Response) => {
   return res.json({
@@ -115,8 +154,6 @@ router.get("/usuarios", (req: Request, res: Response) => {
   });
 });
 
-
-
 router.get("/usuarios/detalle", (req: Request, res: Response) => {
   const server = Server.instance;
 
@@ -139,8 +176,6 @@ router.get("/usuarios/detalle", (req: Request, res: Response) => {
   //   ok: true,
   //   clientes: usuariosConectados.getUsuarios(),
   // });
-
 });
-   
 
 export default router;

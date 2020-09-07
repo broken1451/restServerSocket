@@ -74,6 +74,9 @@ export default class Server {
       // configurar usuario Login
       socket.login(cliente, this.io)
 
+      // configurar de mapas
+      socket.mapaSockets(cliente, this.io)
+
       // logout 
       socket.logout(cliente, this.io)
         
